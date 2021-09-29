@@ -62,7 +62,7 @@ def sendmail(subject, html, recipients):
 def admin_role_required(func):
     @functools.wraps(func)
     def new_func(*args, **kwargs):
-        user = user_service.checkUserById(get_jwt_identity())
+        user = user_service.getUserById(get_jwt_identity())
         g.user = user
         if Roles.admin.value not in user.roles:
             raise AppException("User does not have valid role for this endpoint", HTTPStatus.UNAUTHORIZED.real)

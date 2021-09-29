@@ -1,57 +1,46 @@
 from http import HTTPStatus
-from model.user import User
-from settings import db
-from flask import request, jsonify
+from werkzeug.security import generate_password_hash
+from service import user_service
 from flask_jwt_extended import *
 from util.exceptions import AppException
-from util.helpers import json_response
+
+
+def create_tokens(_id, email, remember_me):
+    res = {}
+    data = {'id': _id, 'email': email}
+    res['access_token'] = create_access_token(identity=data, fresh=True)
+    if remember_me is True:
+        res['refresh_token'] = create_refresh_token(identity=data)
+    return res
 
 
 def login(request_data):
-    res = {}
-    try:
-        email = request_data['email']
-        password = request_data['password']
-        user = User.query.filter_by(email=email).first()
-
-        if not user:
-            res['msg'] = "User not registered !"
-            return json_response(res, 400)
-
-        if not user.checkPassword(password):
-            res['msg'] = "Email/Password"
-            return json_response(res, 400)
-
-        data = {'id': user.id, 'email': user.email}
-
-        res['access_token'] = create_access_token(identity=data, fresh=True)
-        if "remember_me" in request_data:
-            res['refresh_token'] = create_refresh_token(identity=data)
-        return res
-    except Exception as e:
-        raise AppException(str(e), HTTPStatus.BAD_REQUEST.real)
+    email = request_data['email']
+    password = request_data['password']
+    user = user_service.getUserByEmail(email)
+    if user is None:
+        raise AppException("There is no any user with this email", HTTPStatus.UNAUTHORIZED.real)
+    if not user.checkPassword(password):
+        raise AppException("Email and Password do not match", HTTPStatus.UNAUTHORIZED.real)
+    if user.blocked_at is not None:
+        raise AppException("User is blocked", HTTPStatus.UNAUTHORIZED.real)
+    if user.activated_at is None:
+        raise AppException("User must be activated for auth", HTTPStatus.UNAUTHORIZED.real)
+    return user
 
 
-def saveSuperAdmin():
-    res = {}
-    try:
-        full_name = request.form.get('full_name')
-        username = request.form.get('username')
-        email = request.form.get('email')
-        password = request.form.get('password')
+def register(request_data):
+    user = user_service.getUserByEmail(request_data['email'])
+    if user is not None:
+        raise AppException("There is already a user with this email", HTTPStatus.BAD_REQUEST.real)
 
-        data = [{
-            'username': username,
-            'email': email,
-        }]
+    if request_data['password'] != request_data['password_confirmation']:
+        raise AppException("Password not matched", HTTPStatus.BAD_REQUEST.real)
 
-        user = User(full_name=full_name, username=username, email=email)
-        user.setPassword(password)
-        db.session.add(user)
-        db.session.commit()
-
-        res['data'] = data
-        res['msg'] = "Data added successfully !"
-        return json_response(res)
-    except Exception as e:
-        raise AppException(str(e), HTTPStatus.BAD_REQUEST.real)
+    data = {
+        'email': request_data['email'],
+        'name': request_data['name'],
+        'last_name': request_data['last_name'],
+        "password": generate_password_hash(request_data['password'])
+    }
+    return user_service.create_user(data)

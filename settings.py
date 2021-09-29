@@ -41,7 +41,7 @@ app.config.update({
         },
         'specs': [
             {
-                'endpoint': 'doc',
+                'endpoint': 'swagger',
                 'route': '/api/v1/swagger.json',
                 'rule_filter': lambda rule: True,
                 'model_filter': lambda tag: True,
@@ -71,13 +71,11 @@ app.config.update({
                 'Bearer': []
             }
         ],
-        'uiversion': 3,
+        'uiversion': 2,
         'ui_params': {
             'apisSorter': 'alpha',
             'operationsSorter': 'alpha',
         },
-        'hide_top_bar': True,
-        'footer_text': '&copy; 2021. All rights reserved.',
     }
 })
 db = SQLAlchemy(app)

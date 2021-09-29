@@ -1,4 +1,4 @@
-Get the user JWT token.
+Register user.
 ---
 tags:
   - Auth
@@ -18,11 +18,20 @@ parameters:
           type: string
           required: true
           example: "passwd"
-        remember_me:
-          type: boolean
-          example: true
+        password_confirmation:
+          type: string
+          required: true
+          example: "passwd"
+        name:
+          type: string
+          required: true
+          example: "John"
+        last_name:
+          type: string
+          required: true
+          example: "Doe"
 responses:
-  200:
+  201:
     description: User registered.
     schema:
       type: object
@@ -32,7 +41,7 @@ responses:
           example: true
         code:
           type: integer
-          example: 200
+          example: 201
         data:
           type: object
           properties:
