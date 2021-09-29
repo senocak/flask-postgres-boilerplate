@@ -6,8 +6,8 @@ from util.advice import ErrorHandler
 from flask_jwt_extended import exceptions
 from util.helpers import json_response
 
-app.register_blueprint(auth, url_prefix='/v1/auth')
-app.register_blueprint(user, url_prefix='/v1/user')
+app.register_blueprint(auth, url_prefix='/api/v1/auth')
+app.register_blueprint(user, url_prefix='/api/v1/user')
 
 
 @app.route('/', methods=['POST', 'GET', 'PUT', 'PATCH', 'DELETE'])

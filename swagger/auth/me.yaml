@@ -1,0 +1,35 @@
+Authenticated user.
+---
+tags:
+  - Auth
+security:
+  - Bearer: [ Authorization ]
+responses:
+  200:
+    description: Authenticated user data.
+    schema:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        code:
+          type: integer
+          example: 200
+        data:
+          type: object
+          example:
+            id: 601f569f77a26da01e2409d1
+            name: "servet"
+            lastname: "tas"
+            email: "servettas@gmail.com"
+            created_at: "2021-02-07T05:55:27.871000"
+            updated_at: "2021-02-07T05:55:29.871000"
+  401:
+    description: Token has expired
+    schema:
+      type: object
+      properties:
+        msg:
+          type: string
+          example: "Token has expired"

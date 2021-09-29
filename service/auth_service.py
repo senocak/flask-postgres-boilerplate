@@ -32,15 +32,6 @@ def login(request_data):
         raise AppException(str(e), HTTPStatus.BAD_REQUEST.real)
 
 
-def logout():
-    try:
-        response = jsonify({"msg": "logout successful"})
-        unset_jwt_cookies(response)
-        return json_response(response)
-    except Exception as e:
-        raise AppException(str(e), HTTPStatus.BAD_REQUEST.real)
-
-
 def saveSuperAdmin():
     res = {}
     try:

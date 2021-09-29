@@ -29,7 +29,7 @@ def json_response(success=True, messages=None, data=None, code=HTTPStatus.OK):
 
 
 def doc(name, validation=False):
-    return swag_from(os.path.join(os.getcwd(), 'doc/{}.yaml'.format(name)), validation=validation)
+    return swag_from(os.path.join(os.getcwd(), 'swagger/{}.yaml'.format(name)), validation=validation)
 
 
 def get_pagination_data(pagination):
