@@ -12,7 +12,7 @@ user = Blueprint('user', __name__)
 @user.route('/all', methods=['GET'])
 @jwt_required()
 def get_all():
-    me = user_service.getUserById(get_jwt_identity())
+    me = user_service.getUserById(get_jwt_identity()["identity"])
     try:
         get_all = user_service.get_all()
         data = Response.UserSchema(many=True).dump(get_all)

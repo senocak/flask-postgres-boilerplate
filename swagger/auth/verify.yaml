@@ -1,0 +1,33 @@
+User operations verification.
+---
+tags:
+  - Auth
+responses:
+  200:
+    description: User user-operations verified.
+    schema:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        code:
+          type: integer
+          example: 200
+        messages:
+          type: array
+          items:
+            type: string
+            example: "Your e-mail address has been verified. Thanks."
+  404:
+    description: Not found error.
+    schema:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: array
+          example:
+            - "User not found."

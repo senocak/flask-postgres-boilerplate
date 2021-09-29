@@ -1,16 +1,17 @@
 from model.user import User
 from settings import db
 from util.exceptions import AppException
+from datetime import datetime
 
 
 def get_all():
     return User.query.all()
 
 
-def getUserById(identity):
-    user = User.query.filter_by(id=identity["id"]).first()
+def getUserById(_id):
+    user = User.query.filter_by(id=_id).first()
     if user is None:
-        raise AppException("Token and User not match")
+        raise AppException("User not found.")
     return user
 
 
@@ -23,5 +24,11 @@ def create_user(data):
     for key in data:
         setattr(user, key, data[key])
     db.session.add(user)
+    db.session.commit()
+    return user
+
+
+def verify(user):
+    user.activated_at = str(datetime.now())
     db.session.commit()
     return user

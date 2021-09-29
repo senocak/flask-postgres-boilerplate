@@ -1,8 +1,11 @@
+import os
 from http import HTTPStatus
+from flask import render_template
 from werkzeug.security import generate_password_hash
 from service import user_service
 from flask_jwt_extended import *
 from util.exceptions import AppException
+from util.helpers import sendmail
 
 
 def create_tokens(_id, email, remember_me):
@@ -45,4 +48,22 @@ def register(request_data):
         'address': request_data['address'] if "address" in request_data else None,
         'zip': request_data['zip'] if "zip" in request_data else None
     }
-    return user_service.create_user(data)
+    user = user_service.create_user(data)
+    sendVerificationEmail(user)
+    return user
+
+
+def sendVerificationEmail(user):
+    subject = 'User Verification Email'
+    sendmail(
+        subject=subject,
+        html=render_template(
+            'mail/user_register_verification.html',
+            subject=subject,
+            url='{}/kullanici-onay/{}'.format(
+                os.environ.get('FRONTEND_URL'),
+                user.id
+            )
+        ),
+        recipients=[user.email]
+    )
