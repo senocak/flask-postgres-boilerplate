@@ -41,6 +41,8 @@ def register(request_data):
         'email': request_data['email'],
         'name': request_data['name'],
         'last_name': request_data['last_name'],
-        "password": generate_password_hash(request_data['password'])
+        "password": generate_password_hash(request_data['password']),
+        'address': request_data['address'] if "address" in request_data else None,
+        'zip': request_data['zip'] if "zip" in request_data else None
     }
     return user_service.create_user(data)

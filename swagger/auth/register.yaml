@@ -30,6 +30,14 @@ parameters:
           type: string
           required: true
           example: "Doe"
+        address:
+          type: string
+          required: false
+          example: "Phoenix Airport"
+        zip:
+          type: integer
+          required: false
+          example: 85034
 responses:
   201:
     description: User registered.

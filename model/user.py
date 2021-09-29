@@ -42,6 +42,8 @@ class Request:
         password_confirmation = fields.String(required=True, validate=[validate.Length(min=6, max=100)])
         name = fields.String(required=True, validate=[validate.Length(min=3, max=30)])
         last_name = fields.String(required=True, validate=[validate.Length(min=3, max=30)])
+        address = fields.String(default=None)
+        zip = fields.Integer(default=None)
 
 
 class Response:
