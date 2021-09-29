@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from settings import app
+from settings import app, jwt
 from controller.auth import auth
 from controller.user import user
 from util.advice import ErrorHandler
@@ -26,6 +26,15 @@ def index():
 @app.errorhandler(exceptions.RevokedTokenError)
 @app.errorhandler(exceptions.InvalidHeaderError)
 @app.errorhandler(exceptions.InvalidQueryParamError)
+@jwt.invalid_token_loader
+@jwt.user_lookup_error_loader
+@jwt.unauthorized_loader
+@jwt.additional_claims_loader
+@jwt.additional_headers_loader
+@jwt.encode_key_loader
+@jwt.expired_token_loader
+@jwt.revoked_token_loader
+@jwt.needs_fresh_token_loader
 def handle_auth_error(e):
     return json_response(data=str(e), code=HTTPStatus.UNAUTHORIZED.real)
 
