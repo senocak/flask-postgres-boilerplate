@@ -4,7 +4,7 @@ from controller.auth import auth
 from controller.user import user
 from util.advice import ErrorHandler
 from flask_jwt_extended import exceptions
-from util.helpers import json_response
+from util.exceptions import AppException
 
 app.register_blueprint(auth, url_prefix='/api/v1/auth')
 app.register_blueprint(user, url_prefix='/api/v1/user')
@@ -26,17 +26,25 @@ def index():
 @app.errorhandler(exceptions.RevokedTokenError)
 @app.errorhandler(exceptions.InvalidHeaderError)
 @app.errorhandler(exceptions.InvalidQueryParamError)
-@jwt.invalid_token_loader
-@jwt.user_lookup_error_loader
-@jwt.unauthorized_loader
-@jwt.additional_claims_loader
-@jwt.additional_headers_loader
-@jwt.encode_key_loader
+def handle_auth_error(e):
+    return ErrorHandler(AppException(str(e), HTTPStatus.UNAUTHORIZED.real)).response
+
+
 @jwt.expired_token_loader
+def handle_expired_token_loader(header, payload):
+    return ErrorHandler(AppException("Token is expired. Obtain new one", HTTPStatus.UNAUTHORIZED.real)).response
+
+
+@jwt.invalid_token_loader
 @jwt.revoked_token_loader
 @jwt.needs_fresh_token_loader
-def handle_auth_error(e):
-    return json_response(data=str(e), code=HTTPStatus.UNAUTHORIZED.real)
+def handle_invalid_token_loader(e):
+    return ErrorHandler(AppException(["Invalid Token", e], HTTPStatus.UNAUTHORIZED.real)).response
+
+
+@jwt.unauthorized_loader
+def handle_unauthorized_loader():
+    return ErrorHandler(AppException("Unauthorized", HTTPStatus.UNAUTHORIZED.real)).response
 
 
 @app.errorhandler(Exception)

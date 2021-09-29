@@ -7,6 +7,7 @@ from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from dotenv import load_dotenv
 from flask_marshmallow import Marshmallow
+from flask_mail import Mail
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(os.getcwd(), '.env'))
@@ -85,3 +86,4 @@ jwt = JWTManager(app)
 cors = CORS(app)
 fma = Marshmallow(app)
 swagger = Swagger(app)
+mail = Mail(app)

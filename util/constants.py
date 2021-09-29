@@ -3,8 +3,8 @@ from enum import Enum, unique
 
 @unique
 class Roles(Enum):
-    admin = 'ADMIN'
-    user = 'USER'
+    admin = 'ROLE_ADMIN'
+    user = 'ROLE_USER'
 
     @staticmethod
     def list():

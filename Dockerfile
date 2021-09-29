@@ -1,46 +1,17 @@
-# pull official base image
-FROM python:3.8.3-alpine as builder
+FROM python:3.8.11-alpine3.13
+RUN apk add --no-cache --virtual .pynacl_deps build-base python3-dev libffi-dev curl libressl-dev libxslt-dev netcat-openbsd gcc musl-dev postgresql-dev
 
-# set work directory
-WORKDIR /usr/src/app
+ADD requirements.txt /.
+RUN pip install -r /requirements.txt
 
-# set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ADD entrypoint.sh /usr/local/bin/
+RUN ["chmod", "+x", "/usr/local/bin/entrypoint.sh"]
 
-# install psycopg2 dependencies
-RUN apk update && apk add postgresql-dev gcc python3-dev musl-dev
+ADD . /code/
 
-# lint
-RUN pip install pip
-RUN pip install flake8
-COPY . .
-RUN flake8 --ignore=E501,F401 .
+WORKDIR /code
 
-# install dependencies
-COPY ./requirements.txt .
-RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
+# COPY .env.dev .env
 
-# create directory for the app user
-RUN mkdir -p /home/app
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
-# create the appropriate directories
-ENV HOME=/home/app
-ENV APP_HOME=/home/app/web
-RUN mkdir $APP_HOME
-WORKDIR $APP_HOME
-
-# install dependencies
-RUN apk update && apk add libpq
-COPY --from=builder /usr/src/app/wheels /wheels
-COPY --from=builder /usr/src/app/requirements.txt .
-RUN pip install --no-cache /wheels/*
-
-# copy entrypoint-prod.sh
-COPY ./entrypoint.prod.sh $APP_HOME
-
-# copy project
-COPY . $APP_HOME
-
-# run entrypoint.prod.sh
-ENTRYPOINT ["/home/app/web/entrypoint.prod.sh"]
