@@ -1,4 +1,4 @@
-User operations verification.
+User re-send verification email.
 ---
 tags:
   - Auth
@@ -18,7 +18,7 @@ responses:
           type: array
           items:
             type: string
-            example: "Your e-mail address has been verified. Thanks."
+            example: "Please check email"
   404:
     description: Not found error.
     schema:

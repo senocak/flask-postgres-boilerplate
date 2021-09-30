@@ -44,7 +44,7 @@ def register(request_data):
         'email': request_data['email'],
         'name': request_data['name'],
         'last_name': request_data['last_name'],
-        "password": generate_password_hash(request_data['password']),
+        "password": user_service.hashPassword(request_data['password']),
         'address': request_data['address'] if "address" in request_data else None,
         'zip': request_data['zip'] if "zip" in request_data else None
     }
@@ -57,13 +57,19 @@ def sendVerificationEmail(user):
     subject = 'User Verification Email'
     sendmail(
         subject=subject,
-        html=render_template(
-            'mail/user_register_verification.html',
-            subject=subject,
-            url='{}/kullanici-onay/{}'.format(
-                os.environ.get('FRONTEND_URL'),
-                user.id
-            )
-        ),
+        html=render_template('mail/user_register_verification.html',
+                             subject=subject,
+                             url='{}/kullanici-onay/{}'.format(os.environ.get('FRONTEND_URL'), user.id)),
+        recipients=[user.email]
+    )
+
+
+def sendPassResetEmail(user, pass_reset):
+    subject = 'Password Reset Email'
+    sendmail(
+        subject=subject,
+        html=render_template('mail/user_pass_reset.html',
+                             subject=subject,
+                             url='{}/pass-reset/{}'.format(os.environ.get('FRONTEND_URL'), pass_reset.hashed_token)),
         recipients=[user.email]
     )

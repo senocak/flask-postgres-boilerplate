@@ -1,11 +1,13 @@
+from sqlalchemy import ForeignKey
 from settings import db, fma
 from marshmallow import Schema, fields, validate
 from datetime import datetime
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash
 import uuid
 
 
 class User(db.Model):
+    __tablename__ = 'user'
     id = db.Column(db.String(60), primary_key=True, default=str(uuid.uuid4()))
     email = db.Column(db.String(60), index=True, unique=True, nullable=False)
     password = db.Column(db.String(250), nullable=False)
@@ -19,18 +21,26 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow)
     deleted_at = db.Column(db.DateTime, default=None)
+    pass_reset = db.relationship('ResetPasswordRequest', backref='list', lazy=True)
 
     def __repr__(self):
         return '<Users {}>'.format(self.name)
-
-    def setPassword(self, password):
-        self.password = generate_password_hash(password)
 
     def checkPassword(self, password):
         return check_password_hash(self.password, password)
 
 
-class Request:
+class ResetPasswordRequest(db.Model):
+    __tablename__ = 'reset_password_request'
+    id = db.Column(db.String(60), primary_key=True, default=str(uuid.uuid4()))
+    selector = db.Column(db.String(60), nullable=True)
+    hashed_token = db.Column(db.String(250), nullable=False)
+    requested_at = db.Column(db.DateTime, default=datetime.utcnow)
+    expires_at = db.Column(db.DateTime, default=None)
+    user_id = db.Column(db.Integer, ForeignKey('user.id'), nullable=False)
+
+
+class UserRequest:
     class AuthSchema(Schema):
         email = fields.Email(required=True)
         password = fields.String(required=True, validate=[validate.Length(min=6, max=100)])
@@ -45,8 +55,15 @@ class Request:
         address = fields.String(default=None)
         zip = fields.Integer(default=None)
 
+    class PasswordResetRequestSchema(Schema):
+        email = fields.Email(required=True)
 
-class Response:
+    class PasswordResetSchema(PasswordResetRequestSchema):
+        password = fields.String(required=True, validate=[validate.Length(min=6, max=100)])
+        password_confirmation = fields.String(required=True, validate=[validate.Length(min=6, max=100)])
+
+
+class UserResponse:
     class UserSchema(fma.Schema):
         class Meta:
             model = User

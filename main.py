@@ -39,7 +39,7 @@ def handle_expired_token_loader(header, payload):
 @jwt.revoked_token_loader
 @jwt.needs_fresh_token_loader
 def handle_invalid_token_loader(e):
-    return ErrorHandler(AppException(["Invalid Token", e], HTTPStatus.UNAUTHORIZED.real)).response
+    return ErrorHandler(AppException(str(e), HTTPStatus.UNAUTHORIZED.real)).response
 
 
 @jwt.unauthorized_loader
